@@ -3,12 +3,15 @@ package http
 import (
 	"fmt"
 	"github.com/Sirupsen/logrus"
+	"math/rand"
 	"net/http"
 	"slack-random-emo/config"
+	"slack-random-emo/data"
 )
 
 type Server struct {
 	Logger *logrus.Entry
+	Emos   []data.Emo
 }
 
 func (server *Server) Run(errorChannel chan<- string) {
@@ -23,5 +26,10 @@ func (server *Server) Run(errorChannel chan<- string) {
 }
 
 func (server *Server) ServeRandomEmoji(writer http.ResponseWriter, request *http.Request) {
-	fmt.Fprintf(writer, "random emoji")
+	length := len(server.Emos)
+	index := rand.Intn(length)
+	_, err := fmt.Fprintf(writer, "random emoji %d", index)
+	if err != nil {
+		server.Logger.Warnf("Error responding to request %#v", err)
+	}
 }

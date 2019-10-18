@@ -4,6 +4,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"os"
 	"os/signal"
+	"slack-random-emo/data"
 	"slack-random-emo/http"
 	"syscall"
 )
@@ -12,7 +13,10 @@ func main() {
 	errorChannel := make(chan string)
 	defer close(errorChannel)
 
-	server := http.Server{Logger: logrus.NewEntry(logrus.New())}
+	server := http.Server{
+		Logger: logrus.NewEntry(logrus.New()),
+		Emos:   []data.Emo{{Name: "one"}, {Name: "two"}, {Name: "three"}, {Name: "four"}, {Name: "five"}},
+	}
 
 	go server.Run(errorChannel)
 

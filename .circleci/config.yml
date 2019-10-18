@@ -3,18 +3,16 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.9
+    environment:
+      GOPATH: /go
     working_directory: /go/src/github.com/ciroque/slack-random-emo
     steps:
       - checkout
-
       - run: go get -v -t -d ./...
       - run: go test -v ./...
-
-      # all steps after this run in the remote environment
       - type: setup-docker-engine
         reusable: true
         version: 17.06.0-ce
-
       - run:
           name: Install Docker client
           command: |

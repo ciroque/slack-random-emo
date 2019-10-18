@@ -8,7 +8,7 @@ jobs:
     working_directory: /go/src/github.com/ciroque/slack-random-emo
     steps:
       - checkout
-      - run env && sort
+      - run: env && sort
       - run: go get -v -t -d ./...
       - run: go test -v ./...
       - type: setup-docker-engine

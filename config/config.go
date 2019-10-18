@@ -7,7 +7,7 @@ import (
 )
 
 type Settings struct {
-	port int
+	Port int
 }
 
 func NewSettings() (*Settings, error) {

@@ -1,17 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"github.com/Sirupsen/logrus"
+	"os"
+	"os/signal"
+	"slack-random-emo/http"
+	"syscall"
 )
 
-
 func main() {
-	settings := config.NewSettings()
-	http.HandleFunc("/", ServeRandomEmoji)
-	http.ListenAndServe(":80", nil)
-}
+	stopCh := make(chan struct{})
+	defer close(stopCh)
 
-func ServeRandomEmoji(writer http.ResponseWriter, request *http.Request) {
-	fmt.Fprintf(writer, "random emoji")
+	server := http.Server{Logger: logrus.NewEntry(logrus.New())}
+
+	go server.Run(stopCh)
+
+	sigTerm := make(chan os.Signal, 1)
+	signal.Notify(sigTerm, syscall.SIGTERM)
+	signal.Notify(sigTerm, syscall.SIGINT)
+	<-sigTerm
 }

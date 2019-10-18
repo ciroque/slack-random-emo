@@ -9,15 +9,25 @@ import (
 )
 
 func main() {
-	stopCh := make(chan struct{})
-	defer close(stopCh)
+	errorChannel := make(chan string)
+	defer close(errorChannel)
 
 	server := http.Server{Logger: logrus.NewEntry(logrus.New())}
 
-	go server.Run(stopCh)
+	go server.Run(errorChannel)
 
 	sigTerm := make(chan os.Signal, 1)
 	signal.Notify(sigTerm, syscall.SIGTERM)
 	signal.Notify(sigTerm, syscall.SIGINT)
-	<-sigTerm
+
+	select {
+	case <-sigTerm:
+		{
+
+		}
+	case err := <-errorChannel:
+		{
+			logrus.Error(err)
+		}
+	}
 }

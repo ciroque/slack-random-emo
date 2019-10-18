@@ -5,7 +5,7 @@ jobs:
       - image: circleci/golang:1.9
     environment:
       GOPATH: /go
-    working_directory: /go/src/github.com/ciroque/slack-random-emo
+    working_directory: /go/src/slack-random-emo
     steps:
       - checkout
       - run: env && sort

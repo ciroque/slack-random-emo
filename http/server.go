@@ -19,8 +19,13 @@ func (server *Server) Run(stopCh <-chan struct{}) {
 }
 
 func (server *Server) worker(settings *config.Settings) {
+	server.Logger.Info("About to start listening...")
 	http.HandleFunc("/", server.ServeRandomEmoji)
-	http.ListenAndServe(fmt.Sprintf("%s:%v", settings.Port), nil)
+	address := fmt.Sprintf("%s:%d", settings.Host, settings.Port)
+	err := http.ListenAndServe(address, nil)
+	if err != nil {
+		server.Logger.Error(err)
+	}
 }
 
 func (server *Server) ServeRandomEmoji(writer http.ResponseWriter, request *http.Request) {

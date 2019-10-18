@@ -7,13 +7,19 @@ import (
 )
 
 type Settings struct {
+	Host string
 	Port int
 }
 
 func NewSettings() (*Settings, error) {
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = "0.0.0.0"
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
-		return &Settings{80}, nil
+		port = "888"
 	}
 
 	nport, err := strconv.Atoi(port)
@@ -21,7 +27,7 @@ func NewSettings() (*Settings, error) {
 		return nil, fmt.Errorf("unable to parse PORT: %v", err)
 	}
 
-	config := &Settings{nport}
+	config := &Settings{host, nport}
 
 	return config, nil
 }

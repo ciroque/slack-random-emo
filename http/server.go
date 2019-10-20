@@ -14,8 +14,7 @@ type Server struct {
 	Emos   []data.Emo
 }
 
-func (server *Server) Run(abortChannel chan<- string) {
-	settings, _ := config.NewSettings()
+func (server *Server) Run(settings *config.Settings, abortChannel chan<- string) {
 	http.HandleFunc("/", server.ServeRandomEmoji)
 	address := fmt.Sprintf("%s:%d", settings.Host, settings.Port)
 	server.Logger.Info("Listening on ", address)

@@ -14,14 +14,14 @@ type Server struct {
 	Emos   []data.Emo
 }
 
-func (server *Server) Run(errorChannel chan<- string) {
+func (server *Server) Run(abortChannel chan<- string) {
 	settings, _ := config.NewSettings()
 	http.HandleFunc("/", server.ServeRandomEmoji)
 	address := fmt.Sprintf("%s:%d", settings.Host, settings.Port)
 	server.Logger.Info("Listening on ", address)
 	err := http.ListenAndServe(address, nil)
 	if err != nil {
-		errorChannel <- err.Error()
+		abortChannel <- err.Error()
 	}
 }
 

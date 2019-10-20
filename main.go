@@ -10,15 +10,15 @@ import (
 )
 
 func main() {
-	errorChannel := make(chan string)
-	defer close(errorChannel)
+	abortChannel := make(chan string)
+	defer close(abortChannel)
 
 	server := http.Server{
 		Logger: logrus.NewEntry(logrus.New()),
 		Emos:   []data.Emo{{Name: "one"}, {Name: "two"}, {Name: "three"}, {Name: "four"}, {Name: "five"}},
 	}
 
-	go server.Run(errorChannel)
+	go server.Run(abortChannel)
 
 	sigTerm := make(chan os.Signal, 1)
 	signal.Notify(sigTerm, syscall.SIGTERM)
@@ -29,7 +29,7 @@ func main() {
 		{
 
 		}
-	case err := <-errorChannel:
+	case err := <-abortChannel:
 		{
 			logrus.Error(err)
 		}

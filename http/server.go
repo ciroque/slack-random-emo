@@ -32,7 +32,7 @@ func (server *Server) ServeRandomEmoji(writer http.ResponseWriter, request *http
 
 	response := SlackEmojiResponse{
 		ResponseType: "in_channel",
-		Text:         (*server.Emos)[index].Name,
+		Text:         fmt.Sprintf(":%s:", (*server.Emos)[index].Name),
 		Attachments:  []map[string]string{},
 	}
 

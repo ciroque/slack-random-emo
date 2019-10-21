@@ -41,6 +41,7 @@ func (server *Server) ServeRandomEmoji(writer http.ResponseWriter, request *http
 		server.Logger.Warnf("Error responding to request %#v", err)
 	}
 
+	writer.Header().Add("Content-Type", "application/json")
 	_, err = fmt.Fprintf(writer, "%s", bytes)
 	if err != nil {
 		server.Logger.Warnf("Error responding to request %#v", err)

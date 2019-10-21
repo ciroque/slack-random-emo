@@ -18,16 +18,25 @@ func main() {
 	abortChannel := make(chan string)
 	defer close(abortChannel)
 
+	emoUpdateChannel := make(chan *[]data.Emo)
+	defer close(emoUpdateChannel)
+
 	settings, _ := config.NewSettings()
 
+	var emos *[]data.Emo
+
 	server := http.Server{
-		Logger: logrus.NewEntry(logrus.New()),
-		Emos:   []data.Emo{{Name: "one"}, {Name: "two"}, {Name: "three"}, {Name: "four"}, {Name: "five"}},
+		Logger:           logrus.NewEntry(logrus.New()),
+		Emos:             emos,
+		EmoUpdateChannel: emoUpdateChannel,
 	}
 
-	slackEmoRetriever := sources.SlackRetriever{}
+	slackEmoRetriever := sources.SlackRetriever{
+		EmoUpdateChannel: emoUpdateChannel,
+	}
 
 	go server.Run(settings, abortChannel)
+	go server.HandleUpdates()
 	go slackEmoRetriever.Run(settings, stopRetrieverChannel)
 
 	sigTerm := make(chan os.Signal, 1)

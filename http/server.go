@@ -10,8 +10,9 @@ import (
 )
 
 type Server struct {
-	Logger *logrus.Entry
-	Emos   []data.Emo
+	Logger           *logrus.Entry
+	Emos             *[]data.Emo
+	EmoUpdateChannel <-chan *[]data.Emo
 }
 
 func (server *Server) Run(settings *config.Settings, abortChannel chan<- string) {
@@ -25,10 +26,16 @@ func (server *Server) Run(settings *config.Settings, abortChannel chan<- string)
 }
 
 func (server *Server) ServeRandomEmoji(writer http.ResponseWriter, request *http.Request) {
-	length := len(server.Emos)
+	length := len(*server.Emos)
 	index := rand.Intn(length)
-	_, err := fmt.Fprintf(writer, "random emoji %d", index)
+	_, err := fmt.Fprintf(writer, ":%s:", (*server.Emos)[index].Name)
 	if err != nil {
 		server.Logger.Warnf("Error responding to request %#v", err)
+	}
+}
+
+func (server *Server) HandleUpdates() {
+	for updatedEmos := range server.EmoUpdateChannel {
+		server.Emos = updatedEmos
 	}
 }

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -11,12 +12,14 @@ type Settings struct {
 	Host                   string
 	Port                   int
 	RetrievalPeriodSeconds time.Duration
+	SlackUrl               string
+	SlackAuthToken         string
 }
 
 func NewSettings() (*Settings, error) {
-	host := os.Getenv("HOST")
-	if host == "" {
-		host = "0.0.0.0"
+	slackAuthToken := os.Getenv("SLACK_AUTH_TOKEN")
+	if slackAuthToken == "" {
+		return nil, errors.New("Slack auth token is required: %v")
 	}
 
 	port := os.Getenv("PORT")
@@ -39,7 +42,17 @@ func NewSettings() (*Settings, error) {
 		return nil, fmt.Errorf("unable to parse RETRIEVAL_PERIOD_SECONDS: %v", err)
 	}
 
-	config := &Settings{host, nport, time.Duration(nRetrievalPeriod)}
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = "0.0.0.0"
+	}
+
+	slackHost := os.Getenv("SLACK_HOST")
+	if slackHost == "" {
+		slackHost = "https://slack.com/api/emoji.list"
+	}
+
+	config := &Settings{host, nport, time.Duration(nRetrievalPeriod), slackHost, slackAuthToken}
 
 	return config, nil
 }

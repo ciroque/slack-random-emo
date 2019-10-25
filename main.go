@@ -26,18 +26,22 @@ func main() {
 	var emos *[]data.Emo
 
 	server := http.Server{
+		AbortChannel:     abortChannel,
 		Logger:           logrus.NewEntry(logrus.New()),
 		Emos:             emos,
 		EmoUpdateChannel: emoUpdateChannel,
+		Settings:         settings,
 	}
 
 	slackEmoRetriever := sources.SlackRetriever{
 		EmoUpdateChannel: emoUpdateChannel,
+		Settings:         settings,
+		StopChannel:      stopRetrieverChannel,
 	}
 
-	go server.Run(settings, abortChannel)
+	go server.Run()
 	go server.HandleUpdates()
-	go slackEmoRetriever.Run(settings, stopRetrieverChannel)
+	go slackEmoRetriever.Run()
 
 	sigTerm := make(chan os.Signal, 1)
 	signal.Notify(sigTerm, syscall.SIGTERM)

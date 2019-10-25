@@ -13,17 +13,19 @@ import (
 
 type SlackRetriever struct {
 	EmoUpdateChannel chan<- *[]data.Emo
+	Settings         *config.Settings
+	StopChannel      <-chan bool
 }
 
-func (retriever *SlackRetriever) Run(settings *config.Settings, stopChannel <-chan bool) {
-	periodic := time.NewTicker(time.Second * settings.RetrievalPeriodSeconds)
+func (retriever *SlackRetriever) Run() {
+	periodic := time.NewTicker(time.Second * retriever.Settings.RetrievalPeriodSeconds)
 
-	retriever.worker(settings)
+	retriever.worker()
 
 	go func() {
 		for {
 			select {
-			case <-stopChannel:
+			case <-retriever.StopChannel:
 				{
 					logrus.Info("Shutting down Slack Retriever")
 					return
@@ -31,15 +33,15 @@ func (retriever *SlackRetriever) Run(settings *config.Settings, stopChannel <-ch
 			case t := <-periodic.C:
 				{
 					logrus.Info("Tick at ", t)
-					retriever.worker(settings)
+					retriever.worker()
 				}
 			}
 		}
 	}()
 }
 
-func (retriever *SlackRetriever) worker(settings *config.Settings) {
-	url := fmt.Sprintf("%s?token=%s", settings.SlackUrl, settings.SlackAuthToken)
+func (retriever *SlackRetriever) worker() {
+	url := fmt.Sprintf("%s?token=%s", retriever.Settings.SlackUrl, retriever.Settings.SlackAuthToken)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

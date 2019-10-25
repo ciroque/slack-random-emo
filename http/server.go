@@ -11,18 +11,20 @@ import (
 )
 
 type Server struct {
+	AbortChannel     chan<- string
 	Logger           *logrus.Entry
 	Emos             *[]data.Emo
 	EmoUpdateChannel <-chan *[]data.Emo
+	Settings         *config.Settings
 }
 
-func (server *Server) Run(settings *config.Settings, abortChannel chan<- string) {
+func (server *Server) Run() {
 	http.HandleFunc("/", server.ServeRandomEmoji)
-	address := fmt.Sprintf("%s:%d", settings.Host, settings.Port)
+	address := fmt.Sprintf("%s:%d", server.Settings.Host, server.Settings.Port)
 	server.Logger.Info("Listening on ", address)
 	err := http.ListenAndServe(address, nil)
 	if err != nil {
-		abortChannel <- err.Error()
+		server.AbortChannel <- err.Error()
 	}
 }
 

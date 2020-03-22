@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Sirupsen/logrus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"math/rand"
 	"net/http"
 	"slack-random-emo/config"
@@ -20,6 +21,7 @@ type Server struct {
 
 func (server *Server) Run() {
 	http.HandleFunc("/", server.ServeRandomEmoji)
+	http.Handle("/metrics", promhttp.Handler())
 	address := fmt.Sprintf("%s:%d", server.Settings.Host, server.Settings.Port)
 	server.Logger.Info("Listening on ", address)
 	err := http.ListenAndServe(address, nil)

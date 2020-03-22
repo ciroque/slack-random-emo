@@ -8,6 +8,7 @@ import (
 	"slack-random-emo/data"
 	"slack-random-emo/data/sources"
 	"slack-random-emo/http"
+	metrics2 "slack-random-emo/metrics"
 	"syscall"
 )
 
@@ -23,6 +24,8 @@ func main() {
 
 	settings, _ := config.NewSettings()
 
+	metrics := metrics2.NewMetrics()
+
 	var emos *[]data.Emo
 
 	server := http.Server{
@@ -31,12 +34,14 @@ func main() {
 		Emos:             emos,
 		EmoUpdateChannel: emoUpdateChannel,
 		Settings:         settings,
+		Metrics:          &metrics,
 	}
 
 	slackEmoRetriever := sources.SlackRetriever{
 		EmoUpdateChannel: emoUpdateChannel,
 		Settings:         settings,
 		StopChannel:      stopRetrieverChannel,
+		Metrics:          &metrics,
 	}
 
 	go server.Run()

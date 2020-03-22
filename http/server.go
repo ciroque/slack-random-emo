@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"slack-random-emo/config"
 	"slack-random-emo/data"
+	"slack-random-emo/metrics"
 )
 
 type Server struct {
@@ -17,11 +18,18 @@ type Server struct {
 	Emos             *[]data.Emo
 	EmoUpdateChannel <-chan *[]data.Emo
 	Settings         *config.Settings
+	Metrics          *metrics.Metrics
 }
 
 func (server *Server) Run() {
-	http.HandleFunc("/", server.ServeRandomEmoji)
+	randomEmojiRequestHandler := promhttp.InstrumentHandlerCounter(
+		server.Metrics.RandomEmoRequestCount,
+		promhttp.InstrumentHandlerDuration(server.Metrics.RandomEmoRequestDurations,
+			http.HandlerFunc(server.ServeRandomEmoji)))
+
 	http.Handle("/metrics", promhttp.Handler())
+	http.HandleFunc("/", randomEmojiRequestHandler)
+
 	address := fmt.Sprintf("%s:%d", server.Settings.Host, server.Settings.Port)
 	server.Logger.Info("Listening on ", address)
 	err := http.ListenAndServe(address, nil)

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"slack-random-emo/config"
 	"slack-random-emo/data"
+	"slack-random-emo/metrics"
 	"time"
 )
 
@@ -15,6 +16,7 @@ type SlackRetriever struct {
 	EmoUpdateChannel chan<- *[]data.Emo
 	Settings         *config.Settings
 	StopChannel      <-chan bool
+	Metrics          *metrics.Metrics
 }
 
 func (retriever *SlackRetriever) Run() {
@@ -41,6 +43,8 @@ func (retriever *SlackRetriever) Run() {
 }
 
 func (retriever *SlackRetriever) worker() {
+	retriever.Metrics.EmoRetrievalCount.Inc()
+	started := time.Now()
 	url := fmt.Sprintf("%s?token=%s", retriever.Settings.SlackUrl, retriever.Settings.SlackAuthToken)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -80,6 +84,8 @@ func (retriever *SlackRetriever) worker() {
 	}
 
 	retriever.EmoUpdateChannel <- &emojis
+	retriever.Metrics.EmoRetrievalLengths.Set(float64(len(emojis)))
+	retriever.Metrics.EmoRetrievalDurations.Observe(float64(time.Since(started).Microseconds()))
 }
 
 type SlackEmoji struct {

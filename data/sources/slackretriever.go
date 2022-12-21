@@ -6,9 +6,9 @@ import (
 	"github.com/Sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
-	"slack-random-emo/config"
-	"slack-random-emo/data"
-	"slack-random-emo/metrics"
+	"slack-random-emo.org/config"
+	"slack-random-emo.org/data"
+	"slack-random-emo.org/metrics"
 	"time"
 )
 

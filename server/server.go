@@ -1,4 +1,4 @@
-package http
+package server
 
 import (
 	"encoding/json"
@@ -7,9 +7,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"math/rand"
 	"net/http"
-	"slack-random-emo/config"
-	"slack-random-emo/data"
-	"slack-random-emo/metrics"
+	"slack-random-emo.org/config"
+	"slack-random-emo.org/data"
+	"slack-random-emo.org/metrics"
 )
 
 type Server struct {

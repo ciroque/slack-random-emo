@@ -1,4 +1,4 @@
-package http
+package server
 
 type SlackEmojiResponse struct {
 	ResponseType string              `json:"response_type""`

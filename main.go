@@ -4,11 +4,11 @@ import (
 	"github.com/Sirupsen/logrus"
 	"os"
 	"os/signal"
-	"slack-random-emo/config"
-	"slack-random-emo/data"
-	"slack-random-emo/data/sources"
-	"slack-random-emo/http"
-	metrics2 "slack-random-emo/metrics"
+	"slack-random-emo.org/config"
+	"slack-random-emo.org/data"
+	"slack-random-emo.org/data/sources"
+	"slack-random-emo.org/metrics"
+	localHttp "slack-random-emo.org/server"
 	"syscall"
 )
 
@@ -24,11 +24,11 @@ func main() {
 
 	settings, _ := config.NewSettings()
 
-	metrics := metrics2.NewMetrics()
+	metrics := metrics.NewMetrics()
 
 	var emos *[]data.Emo
 
-	server := http.Server{
+	server := localHttp.Server{
 		AbortChannel:     abortChannel,
 		Logger:           logrus.NewEntry(logrus.New()),
 		Emos:             emos,
